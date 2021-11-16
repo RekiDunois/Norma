@@ -1,10 +1,10 @@
-﻿using System;
+﻿global using Norma.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
-using Norma.Infrastructure;
 
 namespace Norma
 {

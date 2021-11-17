@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using System.Linq;
 
 namespace Norma
 {
@@ -17,56 +18,29 @@ namespace Norma
 	{
 		static async System.Threading.Tasks.Task Main(string[] args)
 		{
-			using IHost host = Bootstraper.Initialize(new[] { "Norma" });
+			using IHost host = Bootstraper.Initialize();
+
             IServiceProvider provider = host.Services.CreateScope().ServiceProvider;
-			var serviceProvider = new ServiceCollection()
-				.AddLogging()
-				.BuildServiceProvider();
 
-			using var loggerFactory = LoggerFactory.Create(builder =>
-			{
-				builder
-					.AddFilter("Microsoft", LogLevel.Warning)
-					.AddFilter("System", LogLevel.Warning)
-					.AddFilter("Norma.Program", LogLevel.Debug)
-					.AddDebug()
-					.AddConsole();
-			});
-			ILogger logger = loggerFactory.CreateLogger<Program>();
+			ILogger logger = provider.GetRequiredService<ILogger<Program>>();
 
-			var settings = provider.GetRequiredService<ConfigManager>().Settings;
+			var settings = provider.GetRequiredService<StartUp>();
 
-			if (settings["Token"] is null)
+			if (settings.BotConfiguration.BotToken is null)
 			{
 				logger.LogError("Token is null");
 				return;
 			}
 
-            if (settings["Admin"] is null)
+            if (settings.BotConfiguration.UserIds.Count() is 0)
             {
 				logger.LogError("admin is null");
 				return;
             }
 
-            ITelegramBotClient botClient = new TelegramBotClient(settings["Token"].Value);
-            logger.LogInformation($"Bot Token is {settings["Token"].Value}");
+            logger.LogInformation($"Bot Token is {settings.BotConfiguration.BotToken}");
 
-			await botClient.SendTextMessageAsync(settings["Admin"].Value, $"Norma is alive");
-			
-			using var cts = new CancellationTokenSource();
-
-			var cancellationToken = cts.Token;
-
-			try
-			{
-				await botClient.ReceiveAsync<TgEventHandler>(null, cancellationToken);
-			}
-			catch (OperationCanceledException exception)
-			{
-				logger.LogError(exception.Message);
-				throw;
-			}
-
+			host.Run();
 		}
 	}
 }

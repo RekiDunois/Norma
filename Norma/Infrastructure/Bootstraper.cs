@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Telegram.Bot;
 
 namespace Norma.Infrastructure
 {
@@ -41,11 +43,19 @@ namespace Norma.Infrastructure
                         }
 
                     // third party dependency
-
-
                 });
 
         public static IHost Initialize(IEnumerable<string> assemblyNames) => Initialize(assemblyNames.Select(Assembly.Load)).Build();
+
+        public static IHost Initialize()
+        {
+            var StartUpConfig = new ConfigurationBuilder()
+                              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                              .AddEnvironmentVariables()
+                              .Build();
+            var StartUp = new StartUp(StartUpConfig);
+            return Host.CreateDefaultBuilder().ConfigureServices(StartUp.ConfigureServices).Build();
+        }
             
     }
 }

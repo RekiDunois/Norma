@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Threading;
-using System.Configuration;
-using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using Norma.Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using System.Linq;
 using Norma.Config;
 
 namespace Norma
 {
-	class Program
+    class Program
 	{
         static void Main(string[] args)
         {

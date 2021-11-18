@@ -5,7 +5,6 @@ using Norma.Config;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Telegram.Bot;
 
 namespace Norma.Infrastructure
 {

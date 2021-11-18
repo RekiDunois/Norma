@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Norma
 {
-	class DailyReport
+    class DailyReport
 	{
 		public string UserName { get; set; }
 		public string Position { get; set; }

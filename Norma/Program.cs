@@ -27,7 +27,7 @@ namespace Norma
 
             var settings = provider.GetRequiredService<ConfigManager>();
 
-            if (settings.BotConfig.BotToken.Contains("{"))
+            if (settings.BotConfig.BotToken.Contains('{'))
             {
                 logger.LogError("Token is null");
                 return;

@@ -1,39 +1,23 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Norma.Config;
+using Norma.Infrastructure;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 
 namespace Norma
 {
-    public class BotConfiguration
-    {
-        public string BotToken { get; init; }
-        public string HostAddress { get; init; }
-        public IEnumerable<string> UserIds { get; init; }
-    }
-    public class ProgramConfiguration
-    {
-        public IEnumerable<string> AssemblyNames { get; init; }
-        public IEnumerable<Assembly> Assemblies { get => AssemblyNames.Select(Assembly.Load); }
-    }
     [Export(SingleInstance = true, LazyCreate = true)]
     public class StartUp
     {
-        public StartUp(IConfiguration configuration)
+        public StartUp(ConfigManager manager)
         {
-            Configuration = configuration;
-            BotConfiguration = configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
-            ProgramConfig = configuration.GetSection("ProgramConfiguration").Get<ProgramConfiguration>();
+            Config = manager;
         }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            foreach (var assembly in ProgramConfig.Assemblies)
+            services.AddHostedService<BotReceiver>();
+
+            foreach (var assembly in Config.ProgramConfig.Assemblies)
                 foreach (var type in assembly.DefinedTypes)
                 {
                     if (type.IsAbstract)
@@ -62,13 +46,9 @@ namespace Norma
 
             // third party dependency
 
-            services.AddSingleton<ITelegramBotClient>((_) => new TelegramBotClient(BotConfiguration.BotToken));
+            services.AddSingleton<ITelegramBotClient>((_) => new TelegramBotClient(Config.BotConfig.BotToken));
             services.AddLogging();
         }
-
-        public IConfiguration Configuration { get; }
-        public BotConfiguration BotConfiguration { get; }
-        public ProgramConfiguration ProgramConfig { get; }
-        public IEnumerable<Assembly> Assemblies { get => ProgramConfig.AssemblyNames.Select(Assembly.Load); }
+        public ConfigManager Config { get; }
     }
 }

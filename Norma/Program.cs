@@ -11,36 +11,37 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using System.Linq;
+using Norma.Config;
 
 namespace Norma
 {
 	class Program
 	{
-		static async System.Threading.Tasks.Task Main(string[] args)
-		{
-			using IHost host = Bootstraper.Initialize();
+        static void Main(string[] args)
+        {
+            using IHost host = Bootstraper.Initialize();
 
             IServiceProvider provider = host.Services.CreateScope().ServiceProvider;
 
-			ILogger logger = provider.GetRequiredService<ILogger<Program>>();
+            ILogger logger = provider.GetRequiredService<ILogger<Program>>();
 
-			var settings = provider.GetRequiredService<StartUp>();
+            var settings = provider.GetRequiredService<ConfigManager>();
 
-			if (settings.BotConfiguration.BotToken is null)
-			{
-				logger.LogError("Token is null");
-				return;
-			}
-
-            if (settings.BotConfiguration.UserIds.Count() is 0)
+            if (settings.BotConfig.BotToken.Contains("{"))
             {
-				logger.LogError("admin is null");
-				return;
+                logger.LogError("Token is null");
+                return;
             }
 
-            logger.LogInformation($"Bot Token is {settings.BotConfiguration.BotToken}");
+            if (settings.BotConfig.UserIds.Count() is 0)
+            {
+                logger.LogError("admin is null");
+                return;
+            }
 
-			host.Run();
-		}
-	}
+            logger.LogInformation($"Bot Token is {settings.BotConfig.BotToken}");
+
+            host.Run();
+        }
+    }
 }

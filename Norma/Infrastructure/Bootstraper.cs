@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Norma.Config;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -53,7 +54,8 @@ namespace Norma.Infrastructure
                               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                               .AddEnvironmentVariables()
                               .Build();
-            var StartUp = new StartUp(StartUpConfig);
+            var Config = new ConfigManager(StartUpConfig);
+            var StartUp = new StartUp(Config);
             return Host.CreateDefaultBuilder().ConfigureServices(StartUp.ConfigureServices).Build();
         }
             

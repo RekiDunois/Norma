@@ -26,6 +26,11 @@ namespace Norma
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var mes = update.Message;
+            if (mes is null)
+            {
+                logger.LogError("todo");
+                return;
+            }
             logger.LogInformation($"receive message: {mes.Text}");
             if (!BotConfig.BotConfig.UserIds.Contains(mes.Chat.Id.ToString()))
             {

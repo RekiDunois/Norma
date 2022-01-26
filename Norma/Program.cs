@@ -1,15 +1,15 @@
 ﻿using System;
-using Norma.Infrastructure;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Norma.Config;
+using Norma.Infrastructure;
 
 namespace Norma
 {
     class Program
-	{
+    {
         static void Main(string[] args)
         {
             using IHost host = Bootstraper.Initialize();
@@ -20,7 +20,14 @@ namespace Norma
 
             var settings = provider.GetRequiredService<ConfigManager>();
 
-            if (settings.BotConfig.BotToken.Contains('{'))
+
+            if (settings.BotConfig is null)
+            {
+                logger.LogError("Config is null");
+                return;
+            }
+
+            if (settings.BotConfig.BotToken == string.Empty)
             {
                 logger.LogError("Token is null");
                 return;

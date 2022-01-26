@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using Norma.Config;
-using Norma.Infrastructure;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.Extensions.Logging;
+using Norma.Config;
+using Norma.Infrastructure;
+using Norma.UpdateProcess;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
@@ -17,29 +18,28 @@ namespace Norma
     public class TgEventHandler : IUpdateHandler
     {
         public static UpdateType[] AllowedUpdates => new UpdateType[] { UpdateType.Message };
+
         private readonly ILogger<TgEventHandler> logger;
-        public TgEventHandler(ConfigManager configuration,ILogger<TgEventHandler> _logger) 
-        { 
-            BotConfig = configuration; 
+        private readonly ITelegramBotClient bot;
+        private readonly IEnumerable<IUpdateProcesser> processers;
+
+
+        public TgEventHandler(ConfigManager configuration, ILogger<TgEventHandler> _logger, ITelegramBotClient _bot, IEnumerable<IUpdateProcesser> _processers)
+        {
+            BotConfig = configuration;
             logger = _logger;
+            bot = _bot;
+            processers = _processers;
         }
+
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var mes = update.Message;
-            if (mes is null)
+            foreach (var processer in processers)
             {
-                logger.LogError("todo");
-                return;
+                await processer.HandleMessage(update, cancellationToken);
             }
-            logger.LogInformation($"receive message: {mes.Text}");
-            if (!BotConfig.BotConfig.UserIds.Contains(mes.Chat.Id.ToString()))
-            {
-                logger.LogError($"you are not an administrators:{mes.Chat.Id}");
-                return;
-            }
-            var url = HttpUtility.UrlDecode(mes.Text);
-            await botClient.SendTextMessageAsync(mes.Chat, $"v4v4v4: {url}", cancellationToken: cancellationToken);
         }
+
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             BotConfig.BotConfig.UserIds.ToList().ForEach(User => botClient.SendTextMessageAsync(User, exception.ToString(), cancellationToken: cancellationToken));

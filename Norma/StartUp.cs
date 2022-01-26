@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Norma.Config;
 using Norma.Infrastructure;
-using System.Reflection;
 using Telegram.Bot;
 
 namespace Norma
@@ -30,11 +30,12 @@ namespace Norma
                             case ExportAttribute exported:
                                 if (exported.SingleInstance)
                                 {
-                                    services.AddSingleton(exported.ContractType??type, type);
+                                    services.AddSingleton(exported.ContractType ?? type, type);
+
                                 }
                                 else
                                 {
-                                    services.AddScoped(exported.ContractType??type, type);
+                                    services.AddScoped(exported.ContractType ?? type, type);
                                 }
                                 break;
                             default:
@@ -43,6 +44,9 @@ namespace Norma
 
                     }
                 }
+
+            // config
+            services.AddSingleton<ConfigManager>((_) => Config);
 
             // third party dependency
 

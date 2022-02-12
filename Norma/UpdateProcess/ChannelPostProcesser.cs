@@ -28,7 +28,12 @@ public class ChannelPostProcesser : IUpdateProcesser
         {
             return;
         }
+        #region DecodeUrl
         string edited = post.Text;
+        if (post.Entities is null)
+        {
+            return;
+        }
         foreach (var entity in post.Entities)
         {
             if (entity.Type is MessageEntityType.Url)
@@ -40,5 +45,6 @@ public class ChannelPostProcesser : IUpdateProcesser
         if (edited.Equals(post.Text))
             return;
         await botClient.EditMessageTextAsync(post.Chat, post.MessageId, edited, cancellationToken: token);
+        #endregion
     }
 }

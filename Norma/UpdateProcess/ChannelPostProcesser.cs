@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Norma.Infrastructure;
 using Norma.UpdateProcess;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -44,7 +45,15 @@ public class ChannelPostProcesser : IUpdateProcesser
         }
         if (edited.Equals(post.Text))
             return;
-        await botClient.EditMessageTextAsync(post.Chat, post.MessageId, edited, cancellationToken: token);
+        try
+        {
+            await botClient.EditMessageTextAsync(post.Chat, post.MessageId, edited, cancellationToken: token);
+        }
+        catch (ApiRequestException reqExc)
+        {
+            logger.LogError(reqExc.Message);
+            return;
+        }
         #endregion
     }
 }

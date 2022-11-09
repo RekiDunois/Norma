@@ -11,7 +11,7 @@ git clone https://github.com/RekiDunois/Norma.git
 cd Norma
 ```
 
-Add config file named `appsetting.json` with content like this:
+Add config file named `appsettings.json` with content like this:
 
 ```json
 {
